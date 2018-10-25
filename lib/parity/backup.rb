@@ -27,6 +27,7 @@ module Parity
       wipe_development_database
       restore_from_quick_restore_backup
       delete_rails_production_environment_settings
+      mask_test_data
     end
 
     private
@@ -48,6 +49,13 @@ module Parity
       restore_from_local_temp_backup
       delete_local_temp_backup
       delete_rails_production_environment_settings
+      mask_test_data
+    end
+
+    def mask_test_data
+      Kernel.system(
+        "bundle exec rake mask_test_data",
+      )
     end
 
     def wipe_development_database
