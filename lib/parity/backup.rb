@@ -22,6 +22,13 @@ module Parity
       end
     end
 
+    def quick_restore
+      ensure_temp_directory_exists
+      wipe_development_database
+      restore_from_quick_restore_backup
+      delete_rails_production_environment_settings
+    end
+
     private
 
     attr_reader :additional_args, :from, :to
@@ -73,6 +80,14 @@ module Parity
     def restore_from_local_temp_backup
       Kernel.system(
         "pg_restore tmp/latest.backup --verbose --clean --no-acl --no-owner "\
+          "--dbname #{development_db} --jobs=#{processor_cores} "\
+          "#{additional_args}",
+      )
+    end
+
+    def restore_from_quick_restore_backup
+      Kernel.system(
+        "pg_restore tmp/quick_restore.dump --verbose --clean --no-acl --no-owner "\
           "--dbname #{development_db} --jobs=#{processor_cores} "\
           "#{additional_args}",
       )

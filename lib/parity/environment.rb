@@ -49,6 +49,18 @@ module Parity
       end
     end
 
+    def quick_restore
+      if production? && !forced?
+        $stdout.puts "Piss Off! You can only do this on development."
+      else
+        Backup.new(
+          from: arguments.first,
+          to: environment,
+          additional_args: additional_restore_arguments,
+        ).quick_restore
+      end
+    end
+
     def restore
       if production? && !forced?
         $stdout.puts "Parity does not support restoring backups into your "\
