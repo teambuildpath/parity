@@ -94,7 +94,7 @@ module Parity
 
     def restore_from_local_temp_backup
       Kernel.system(
-        "pg_restore -l tmp/quick_restore.backup --verbose --clean --no-acl --no-owner | sed '/MATERIALIZED VIEW DATA/d' > ordered.lst",)\
+        "pg_restore -l tmp/quick_restore.backup --verbose --clean --no-acl --no-owner | sed '/MATERIALIZED VIEW DATA/d' > ordered.lst")\
         "pg_restore -L ordered.lst tmp/quick_restore.backup --verbose --clean --no-acl --no-owner"\
           "--dbname #{development_db} --jobs=#{processor_cores} "\
           "#{additional_args}",
@@ -103,7 +103,7 @@ module Parity
 
     def restore_from_quick_restore_backup
       Kernel.system(
-        "pg_restore -l tmp/quick_restore.backup --verbose --clean --no-acl --no-owner | sed '/MATERIALIZED VIEW DATA/d' > ordered.lst",)\
+        "pg_restore -l tmp/quick_restore.backup --verbose --clean --no-acl --no-owner | sed '/MATERIALIZED VIEW DATA/d' > ordered.lst")\
         "pg_restore -L ordered.lst tmp/quick_restore.backup --verbose --clean --no-acl --no-owner"\
           "--dbname #{development_db} --jobs=#{processor_cores} "\
           "#{additional_args}",
