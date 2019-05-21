@@ -21,9 +21,6 @@ describe Parity::Backup do
       expect(Kernel).
         to have_received(:system).
         with(restore_from_local_temp_backup_command)
-      expect(Kernel).
-        to have_received(:system).
-        with(delete_local_temp_backup_command)
     end
 
     it "restores backups to development with Rubies that do not support Etc.nprocessors" do
@@ -45,9 +42,6 @@ describe Parity::Backup do
       expect(Kernel).
         to have_received(:system).
         with(restore_from_local_temp_backup_command(cores: 2))
-      expect(Kernel).
-        to have_received(:system).
-        with(delete_local_temp_backup_command)
     end
 
     it "drops the 'ar_internal_metadata' table if it exists" do
@@ -69,9 +63,6 @@ describe Parity::Backup do
       expect(Kernel).
         to have_received(:system).
         with(restore_from_local_temp_backup_command)
-      expect(Kernel).
-        to have_received(:system).
-        with(delete_local_temp_backup_command)
       expect(Kernel).to have_received(:system).with(set_db_metadata_sql)
     end
   end
@@ -145,20 +136,16 @@ describe Parity::Backup do
   end
 
   def download_remote_database_command
-    'curl -o tmp/latest.backup "$(heroku pg:backups:url --remote production)"'
+    'curl -o tmp/quick_restore.backup "$(heroku pg:backups:url --remote production)"'
   end
 
   def restore_from_local_temp_backup_command(cores: number_of_processes)
-    "pg_restore tmp/latest.backup --verbose --clean --no-acl --no-owner "\
+    "pg_restore tmp/quick_restore.backup --verbose --clean --no-acl --no-owner "\
       "--dbname #{default_db_name} --jobs=#{cores} "
   end
 
   def number_of_processes
     2
-  end
-
-  def delete_local_temp_backup_command
-    "rm tmp/latest.backup"
   end
 
   def heroku_development_to_staging_passthrough(db_name: default_db_name)

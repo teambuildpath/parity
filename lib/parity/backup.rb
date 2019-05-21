@@ -28,6 +28,7 @@ module Parity
       restore_from_quick_restore_backup
       delete_rails_production_environment_settings
       mask_test_data
+      update_materialized_views
     end
 
     private
@@ -47,14 +48,20 @@ module Parity
       download_remote_backup
       wipe_development_database
       restore_from_local_temp_backup
-      delete_local_temp_backup
       delete_rails_production_environment_settings
       mask_test_data
+      update_materialized_views
     end
 
     def mask_test_data
       Kernel.system(
         "bundle exec rake mask_test_data",
+      )
+    end
+
+    def update_materialized_views
+      Kernel.system(
+        "bundle exec rake update_materialized_views",
       )
     end
 
@@ -81,13 +88,14 @@ module Parity
 
     def download_remote_backup
       Kernel.system(
-        "curl -o tmp/latest.backup \"$(heroku pg:backups:url --remote #{from})\"",
+        "curl -o tmp/quick_restore.backup \"$(heroku pg:backups:url --remote #{from})\"",
       )
     end
 
     def restore_from_local_temp_backup
       Kernel.system(
-        "pg_restore tmp/latest.backup --verbose --clean --no-acl --no-owner "\
+        "pg_restore -l tmp/quick_restore.backup --verbose --clean --no-acl --no-owner | sed '/MATERIALIZED VIEW DATA/d' > ordered.lst",)\
+        "pg_restore -L ordered.lst tmp/quick_restore.backup --verbose --clean --no-acl --no-owner"\
           "--dbname #{development_db} --jobs=#{processor_cores} "\
           "#{additional_args}",
       )
@@ -95,14 +103,11 @@ module Parity
 
     def restore_from_quick_restore_backup
       Kernel.system(
-        "pg_restore tmp/quick_restore.dump --verbose --clean --no-acl --no-owner "\
+        "pg_restore -l tmp/quick_restore.backup --verbose --clean --no-acl --no-owner | sed '/MATERIALIZED VIEW DATA/d' > ordered.lst",)\
+        "pg_restore -L ordered.lst tmp/quick_restore.backup --verbose --clean --no-acl --no-owner"\
           "--dbname #{development_db} --jobs=#{processor_cores} "\
           "#{additional_args}",
       )
-    end
-
-    def delete_local_temp_backup
-      Kernel.system("rm tmp/latest.backup")
     end
 
     def delete_rails_production_environment_settings
