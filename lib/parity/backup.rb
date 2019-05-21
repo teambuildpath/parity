@@ -25,7 +25,7 @@ module Parity
     def quick_restore
       ensure_temp_directory_exists
       wipe_development_database
-      restore_from_quick_restore_backup
+      restore_from_local_backup
       delete_rails_production_environment_settings
       mask_test_data
       update_materialized_views
@@ -47,7 +47,7 @@ module Parity
       ensure_temp_directory_exists
       download_remote_backup
       wipe_development_database
-      restore_from_local_temp_backup
+      restore_from_local_backup
       delete_rails_production_environment_settings
       mask_test_data
       update_materialized_views
@@ -92,19 +92,12 @@ module Parity
       )
     end
 
-    def restore_from_local_temp_backup
+    def restore_from_local_backup
       Kernel.system(
-        "pg_restore -l tmp/quick_restore.backup --verbose --clean --no-acl --no-owner | sed '/MATERIALIZED VIEW DATA/d' > ordered.lst")\
-        "pg_restore -L ordered.lst tmp/quick_restore.backup --verbose --clean --no-acl --no-owner"\
-          "--dbname #{development_db} --jobs=#{processor_cores} "\
-          "#{additional_args}",
+         "pg_restore -l tmp/quick_restore.backup --verbose --clean --no-acl --no-owner | sed '/MATERIALIZED VIEW DATA/d' > ordered.lst ",
       )
-    end
-
-    def restore_from_quick_restore_backup
       Kernel.system(
-        "pg_restore -l tmp/quick_restore.backup --verbose --clean --no-acl --no-owner | sed '/MATERIALIZED VIEW DATA/d' > ordered.lst")\
-        "pg_restore -L ordered.lst tmp/quick_restore.backup --verbose --clean --no-acl --no-owner"\
+        "pg_restore -L ordered.lst tmp/quick_restore.backup --verbose --clean --no-acl --no-owner "\
           "--dbname #{development_db} --jobs=#{processor_cores} "\
           "#{additional_args}",
       )
