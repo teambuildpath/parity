@@ -136,11 +136,13 @@ module Parity
     end
 
     def processor_cores
-      if ruby_version_over_2_2?
-        Etc.nprocessors
-      else
-        2
-      end
+      # if ruby_version_over_2_2?
+      #   Etc.nprocessors
+      # else
+      #   2
+      # end
+      # Enforcing just one core here as multi core seems to be causing an issue
+      1
     end
 
     def ruby_version_over_2_2?
