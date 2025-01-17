@@ -126,9 +126,11 @@ module Parity
     end
 
     def development_db
-      YAML.load(database_yaml_file).
-        fetch(DEVELOPMENT_ENVIRONMENT_KEY_NAME).
-        fetch(DATABASE_KEY_NAME)
+      YAML.load(database_yaml_file).dig(
+        DEVELOPMENT_ENVIRONMENT_KEY_NAME,
+        'primary',
+        DATABASE_KEY_NAME
+      )
     end
 
     def database_yaml_file
